@@ -108,7 +108,11 @@ public class Main extends JavaPlugin implements Listener {
             for (int i = 0; i < Main.playerData.size(); ++i) {
                 PlayerData data = Main.playerData.get(i);
                 Location respawnLoc = data.bedSpawn();
-                if (brokenLoc.equals(respawnLoc)) {
+                if (respawnLoc != null && Math.abs(respawnLoc.getBlockX()-brokenLoc.getBlockX()) <= 1.5 &&
+                respawnLoc.getBlockY() == brokenLoc.getBlockY() &&
+                Math.abs(respawnLoc.getBlockZ()-brokenLoc.getBlockZ()) <= 1.5) {
+                    System.out.println("Here");
+                    System.out.println(respawnLoc);
                     Location spawn;
                     try {
                         World world = Bukkit.getWorld("world");
@@ -117,6 +121,7 @@ public class Main extends JavaPlugin implements Listener {
                         World world = Bukkit.getWorlds().get(0);
                         spawn = new Location(world, 0, 0, 0);
                     }
+                    System.out.println(spawn);
                     Main.playerData.set(i, new PlayerData(
                             data.playerUuid(),
                             data.inventory(),
