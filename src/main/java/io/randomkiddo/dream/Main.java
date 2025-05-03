@@ -41,7 +41,11 @@ public class Main extends JavaPlugin implements Listener {
      */
     private static ArrayList<PlayerData> playerData = new ArrayList<>();
 
+    /**
+     * The hash map of player unique IDs and boolean holding if they're using the custom resource pack.
+     */
     private static HashMap<UUID, Boolean> playersResourcePackStatus = new HashMap<>();
+
     /**
      * Dictates behavior on plugin enable. Registers events and fetches current player data.
      */
@@ -265,6 +269,11 @@ public class Main extends JavaPlugin implements Listener {
         }
     }
 
+    /**
+     * Handles behavior for loading a resource pack. Sets the status of the player (if they are using the
+     * resource pack or not), for use with custom sounds.
+     * @param event The player resource pack status event instance.
+     */
     @EventHandler public void onResourcePackStatus(PlayerResourcePackStatusEvent event) {
         Player player = event.getPlayer();
 
