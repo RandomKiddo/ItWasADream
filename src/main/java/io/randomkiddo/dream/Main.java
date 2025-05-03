@@ -118,7 +118,7 @@ public class Main extends JavaPlugin implements Listener {
                     if (!Main.playersResourcePackStatus.getOrDefault(player.getUniqueId(), false)) {
                         player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
                     } else {
-                        player.playSound(player.getLocation(), "custom.flashbang", SoundCategory.MASTER, 1.0f, 1.0f);
+                        player.playSound(player.getLocation(), "minecraft:custom.flashbang", SoundCategory.MASTER, 1.0f, 1.0f);
                     }
                 }
             }
