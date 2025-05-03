@@ -13,10 +13,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.player.PlayerBedEnterEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,6 +26,8 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
+import java.util.UUID;
+import java.util.HashMap;
 
 /**
  * The Main plugin class, extends JavaPlugin and implements Listener.
@@ -42,6 +41,7 @@ public class Main extends JavaPlugin implements Listener {
      */
     private static ArrayList<PlayerData> playerData = new ArrayList<>();
 
+    private static HashMap<UUID, Boolean> playersResourcePackStatus = new HashMap<>();
     /**
      * Dictates behavior on plugin enable. Registers events and fetches current player data.
      */
@@ -72,6 +72,8 @@ public class Main extends JavaPlugin implements Listener {
         ItemStack[] inventory = player.getInventory().getContents().clone();
         Location respawnLoc = player.getRespawnLocation();
         Main.playerData.add(new PlayerData(player.getUniqueId(), inventory, respawnLoc));
+
+        player.setResourcePack("https://github.com/RandomKiddo/ItWasADream/blob/master/ItWasADreamRP.zip");
     }
 
     /**
@@ -113,7 +115,11 @@ public class Main extends JavaPlugin implements Listener {
                     player.addPotionEffect(new PotionEffect(
                             PotionEffectType.BLINDNESS, 20, 1, false, false
                     ));
-                    player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
+                    if (!Main.playersResourcePackStatus.getOrDefault(player.getUniqueId(), false)) {
+                        player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
+                    } else {
+                        player.playSound(player.getLocation(), "custom.flashbang", SoundCategory.MASTER, 1.0f, 1.0f);
+                    }
                 }
             }
         }
@@ -256,6 +262,16 @@ public class Main extends JavaPlugin implements Listener {
                     }
                 }, 1L);
             }
+        }
+    }
+
+    @EventHandler public void onResourcePackStatus(PlayerResourcePackStatusEvent event) {
+        Player player = event.getPlayer();
+
+        if (event.getStatus() == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED) {
+            Main.playersResourcePackStatus.put(player.getUniqueId(), true);
+        } else {
+            Main.playersResourcePackStatus.put(player.getUniqueId(), false);
         }
     }
 }
