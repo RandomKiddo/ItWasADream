@@ -1,0 +1,10 @@
+{
+  "sounds.custom": {
+    "sounds": [
+      {
+        "name": "custom/flashbang",
+        "stream": false
+      }
+    ]
+  }
+}
