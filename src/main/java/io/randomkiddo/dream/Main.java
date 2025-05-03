@@ -1,3 +1,8 @@
+/**
+ * This file is licensed by the GNU GPLv3 License.
+ * Copyright © 2025 RandomKiddo
+ */
+
 package io.randomkiddo.dream;
 
 import org.bukkit.*;
@@ -25,12 +30,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
 
+/**
+ * The Main plugin class, extends JavaPlugin and implements Listener.
+ *
+ * @see JavaPlugin
+ * @see Listener
+ */
 public class Main extends JavaPlugin implements Listener {
+    /**
+     * The list of player data for the current server.
+     */
     private static ArrayList<PlayerData> playerData = new ArrayList<>();
+
+    /**
+     * Dictates behavior on plugin enable. Registers events and fetches current player data.
+     */
     @Override public void onEnable() {
         Bukkit.getServer().getPluginManager().registerEvents(this, this);
         this.getPlayerData();
     }
+
+    /**
+     * Gets all player data needed from the current status of the server.
+     */
     private void getPlayerData() {
         Collection<? extends Player> playerLikeEntities = Bukkit.getOnlinePlayers();
         for (Player player : playerLikeEntities) {
@@ -40,12 +62,22 @@ public class Main extends JavaPlugin implements Listener {
             Main.playerData.add(new PlayerData(player.getUniqueId(), inventory, respawnLoc));
         }
     }
+
+    /**
+     * Handles behavior on player joining. Adds their player data to the list.
+     * @param event The player join event instance.
+     */
     @EventHandler public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         ItemStack[] inventory = player.getInventory().getContents().clone();
         Location respawnLoc = player.getRespawnLocation();
         Main.playerData.add(new PlayerData(player.getUniqueId(), inventory, respawnLoc));
     }
+
+    /**
+     * Handles behavior on player quitting. Removes their player data from the list.
+     * @param event The player quit event instance.
+     */
     @EventHandler public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         for (int i = 0; i < Main.playerData.size(); ++i) {
@@ -56,6 +88,12 @@ public class Main extends JavaPlugin implements Listener {
             }
         }
     }
+
+    /**
+     * Handles behavior when the player is damaged. Applies "dream"-like behavior when player death
+     * is supposed to occur. Highest event priority. Only handles player damage.
+     * @param event The entity damage event instance.
+     */
     @EventHandler(priority=EventPriority.HIGHEST) public void onDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) {
             return;
@@ -80,12 +118,19 @@ public class Main extends JavaPlugin implements Listener {
             }
         }
     }
+
+    /**
+     * Handles behavior when a player attempts to sleep or update respawn at a bed. Updates player's
+     * respawn location when required.
+     * @param event The player enter bed event instance.
+     */
     @EventHandler public void onPlayerSleep(PlayerBedEnterEvent event) {
+        Player player = event.getPlayer();
+        Location currentRespawn = player.getRespawnLocation();
         if (event.getBedEnterResult() == PlayerBedEnterEvent.BedEnterResult.OK) {
-            Player player = event.getPlayer();
             Bukkit.getScheduler().runTaskLater(this, () -> {
-                Location respawn = event.getPlayer().getRespawnLocation();
-                if (respawn != null) {
+                Location respawn = player.getRespawnLocation();
+                if (respawn != null && !respawn.equals(currentRespawn)) {
                     for (int i = 0; i < Main.playerData.size(); ++i) {
                         PlayerData data = Main.playerData.get(i);
                         if (data.playerUuid().equals(player.getUniqueId())) {
@@ -101,6 +146,13 @@ public class Main extends JavaPlugin implements Listener {
             }, 1L);
         }
     }
+
+    /**
+     * Handles behavior when a block is broken. Only handles instances when respawn anchors or beds are broken.
+     * Updates the respawn location for the player's respawn point when it is lost, either to the world's main
+     * spawn location, or (0, 0, 0), depending on the success of the world instance being fetched.
+     * @param event The block break event instance.
+     */
     @EventHandler public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
         if (block.getType().name().endsWith("_BED") || block.getType() == Material.RESPAWN_ANCHOR) {
@@ -111,8 +163,6 @@ public class Main extends JavaPlugin implements Listener {
                 if (respawnLoc != null && Math.abs(respawnLoc.getBlockX()-brokenLoc.getBlockX()) <= 1.5 &&
                 respawnLoc.getBlockY() == brokenLoc.getBlockY() &&
                 Math.abs(respawnLoc.getBlockZ()-brokenLoc.getBlockZ()) <= 1.5) {
-                    System.out.println("Here");
-                    System.out.println(respawnLoc);
                     Location spawn;
                     try {
                         World world = Bukkit.getWorld("world");
@@ -121,7 +171,6 @@ public class Main extends JavaPlugin implements Listener {
                         World world = Bukkit.getWorlds().get(0);
                         spawn = new Location(world, 0, 0, 0);
                     }
-                    System.out.println(spawn);
                     Main.playerData.set(i, new PlayerData(
                             data.playerUuid(),
                             data.inventory(),
@@ -131,6 +180,14 @@ public class Main extends JavaPlugin implements Listener {
             }
         }
     }
+
+    /**
+     * Handles behavior when an explosion occurs. Only handles when blocks are broken, and the block in question
+     * is either a bed or a respawn anchor. Updates the respawn location for the player's respawn point when it
+     * is lost, either to the world's main spawn location, or (0, 0, 0), depending on the success of the world
+     * instance being fetched.
+     * @param event The entity explode event instance.
+     */
     @EventHandler public void onExplosion(EntityExplodeEvent event) {
         List<Block> blocks = event.blockList();
         for (Block block : blocks) {
@@ -158,6 +215,12 @@ public class Main extends JavaPlugin implements Listener {
             }
         }
     }
+
+    /**
+     * Handles behavior when a player interacts with an object. Only handles instances where the right-clicked
+     * block is a respawn anchor. Updates the given player's respawn location.
+     * @param event The player interact event instance.
+     */
     @EventHandler public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null) {
             Block block = event.getClickedBlock();
