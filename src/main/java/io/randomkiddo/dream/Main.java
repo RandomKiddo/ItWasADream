@@ -118,7 +118,7 @@ public class Main extends JavaPlugin implements Listener {
                     if (!Main.playersResourcePackStatus.getOrDefault(player.getUniqueId(), false)) {
                         player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
                     } else {
-                        player.playSound(player.getLocation(), "minecraft:custom.flashbang", SoundCategory.MASTER, 1.0f, 1.0f);
+                        player.playSound(player.getLocation(), "minecraft:sounds.custom.flashbang", SoundCategory.MASTER, 0.7f, 1.0f);
                     }
                 }
             }
@@ -269,10 +269,8 @@ public class Main extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
 
         if (event.getStatus() == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED) {
-            System.out.println("true");
             Main.playersResourcePackStatus.put(player.getUniqueId(), true);
         } else {
-            System.out.println("false");
             Main.playersResourcePackStatus.put(player.getUniqueId(), false);
         }
     }
