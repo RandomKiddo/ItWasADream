@@ -73,7 +73,7 @@ public class Main extends JavaPlugin implements Listener {
         Location respawnLoc = player.getRespawnLocation();
         Main.playerData.add(new PlayerData(player.getUniqueId(), inventory, respawnLoc));
 
-        player.setResourcePack("https://github.com/RandomKiddo/ItWasADream/blob/master/ItWasADreamRP.zip");
+        player.setResourcePack("https://github.com/RandomKiddo/ItWasADream/releases/download/rp/ItWasADreamRP.zip");
     }
 
     /**
@@ -269,8 +269,10 @@ public class Main extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
 
         if (event.getStatus() == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED) {
+            System.out.println("true");
             Main.playersResourcePackStatus.put(player.getUniqueId(), true);
         } else {
+            System.out.println("false");
             Main.playersResourcePackStatus.put(player.getUniqueId(), false);
         }
     }
